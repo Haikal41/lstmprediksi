@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crypto LSTM Prediction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="container">
+    <header class="header">
+        <div class="header-title">
+            LSTM Crypto <span>Prediction Dashboard</span>
+        </div>
+        <div class="header-controls">
+            <div class="ticker-group" id="tickerGroup">
+                <button class="ticker-btn active" data-ticker="BTC-USD">BTC</button>
+                <button class="ticker-btn" data-ticker="ETH-USD">ETH</button>
+                <button class="ticker-btn" data-ticker="SOL-USD">SOL</button>
+            </div>
+            <div class="days-control">
+                <label for="daysInput">Days</label>
+                <input type="number" class="days-input numeral" id="daysInput" value="7" min="1" max="30">
+                <button class="btn-primary" id="predictBtn">Predict</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="price-display">
+        <div>
+            <div class="price-label">Predicted Price</div>
+            <div class="price-ticker" id="priceTicker">Bitcoin (BTC-USD)</div>
+        </div>
+        <div>
+            <span class="price-value numeral" id="priceValue">$0.00</span>
+            <span class="price-direction" id="priceDirection"></span>
+        </div>
+        <div class="price-context">
+            <div class="price-last" id="priceLast">Last close: --</div>
+            <div class="price-date" id="priceDate">--</div>
+        </div>
+    </div>
+
+    <div class="chart-grid">
+        <div class="chart-card full">
+            <div class="chart-title">Historical Close Price</div>
+            <div class="chart-wrapper">
+                <canvas id="historyChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card full">
+            <div class="chart-title">Actual vs Prediction</div>
+            <div class="chart-wrapper">
+                <canvas id="predictChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-label">RMSE</div>
+            <div class="metric-value numeral" id="metricRmse">--</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">MAE</div>
+            <div class="metric-value numeral" id="metricMae">--</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">MAPE</div>
+            <div class="metric-value numeral" id="metricMape">--</div>
+        </div>
+    </div>
+
+    <div class="info-bar">
+        <span class="info-text" id="epochInfo">--</span>
+        <span class="info-text">Window: <strong>60 days</strong> &middot; Method: <strong>Recursive Forecasting</strong></span>
+    </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <div class="loading-text">Processing prediction...</div>
+    </div>
+</div>
+
+<div class="error-toast" id="errorToast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="/static/js/main.js"></script>
+</body>
+</html>
