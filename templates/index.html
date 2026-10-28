@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Dashboard prediksi harga cryptocurrency berbasis model LSTM.">
 <title>Crypto LSTM Prediction</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234A7FE8'/><path d='M7 22l6-7 4 4 8-9' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,78 +19,111 @@
             LSTM Crypto <span>Prediction Dashboard</span>
         </div>
         <div class="header-controls">
-            <div class="ticker-group" id="tickerGroup">
-                <button class="ticker-btn active" data-ticker="BTC-USD">BTC</button>
-                <button class="ticker-btn" data-ticker="ETH-USD">ETH</button>
-                <button class="ticker-btn" data-ticker="SOL-USD">SOL</button>
+            <div class="ticker-group" id="tickerGroup" role="group" aria-label="Pilih cryptocurrency">
+                <button class="ticker-btn active" data-ticker="BTC-USD" aria-pressed="true">BTC</button>
+                <button class="ticker-btn" data-ticker="ETH-USD" aria-pressed="false">ETH</button>
+                <button class="ticker-btn" data-ticker="SOL-USD" aria-pressed="false">SOL</button>
             </div>
             <div class="days-control">
-                <label for="daysInput">Days</label>
-                <input type="number" class="days-input numeral" id="daysInput" value="7" min="1" max="30">
-                <button class="btn-primary" id="predictBtn">Predict</button>
+                <label for="daysInput">Forecast</label>
+                <input type="number" class="days-input numeral" id="daysInput" value="7" min="1" max="30" inputmode="numeric">
+                <span class="days-suffix">days</span>
+                <button class="btn-primary" id="predictBtn" type="button">Predict</button>
             </div>
         </div>
     </header>
 
-    <div class="price-display">
-        <div>
-            <div class="price-label">Predicted Price</div>
+    <section class="price-display" aria-live="polite">
+        <div class="price-identity">
+            <div class="price-label" id="priceLabel">Predicted Price</div>
             <div class="price-ticker" id="priceTicker">Bitcoin (BTC-USD)</div>
+            <div class="price-horizon" id="priceHorizon">--</div>
         </div>
-        <div>
-            <span class="price-value numeral" id="priceValue">$0.00</span>
-            <span class="price-direction" id="priceDirection"></span>
+
+        <div class="price-figure">
+            <span class="price-value numeral" id="priceValue">--</span>
+            <span class="price-change" id="priceChange">--</span>
         </div>
+
         <div class="price-context">
             <div class="price-last" id="priceLast">Last close: --</div>
             <div class="price-date" id="priceDate">--</div>
         </div>
-    </div>
+    </section>
 
     <div class="chart-grid">
         <div class="chart-card full">
-            <div class="chart-title">Historical Close Price</div>
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">Historical Candlestick</div>
+                    <div class="chart-sub" id="historyRangeLabel">--</div>
+                </div>
+                <div class="range-group" id="rangeGroup" role="group" aria-label="Rentang waktu grafik">
+                    <button class="range-btn" data-range="30" type="button">1M</button>
+                    <button class="range-btn" data-range="90" type="button">3M</button>
+                    <button class="range-btn active" data-range="365" type="button">1Y</button>
+                    <button class="range-btn" data-range="all" type="button">ALL</button>
+                </div>
+            </div>
             <div class="chart-wrapper">
                 <canvas id="historyChart"></canvas>
             </div>
         </div>
+
         <div class="chart-card full">
-            <div class="chart-title">Actual vs Prediction</div>
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">Actual vs Forecast</div>
+                    <div class="chart-sub" id="forecastSub">60-day lookback &middot; recursive forecasting</div>
+                </div>
+            </div>
             <div class="chart-wrapper">
                 <canvas id="predictChart"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <div class="metric-label">RMSE</div>
-            <div class="metric-value numeral" id="metricRmse">--</div>
+    <section class="metrics-section">
+        <div class="section-label">Model evaluation &middot; test set</div>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">RMSE</div>
+                <div class="metric-value numeral" id="metricRmse">--</div>
+                <div class="metric-sub">Root mean squared error</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">MAE</div>
+                <div class="metric-value numeral" id="metricMae">--</div>
+                <div class="metric-sub">Mean absolute error</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">MAPE</div>
+                <div class="metric-value numeral" id="metricMape">--</div>
+                <div class="metric-sub">Mean absolute percentage error</div>
+            </div>
         </div>
-        <div class="metric-card">
-            <div class="metric-label">MAE</div>
-            <div class="metric-value numeral" id="metricMae">--</div>
-        </div>
-        <div class="metric-card">
-            <div class="metric-label">MAPE</div>
-            <div class="metric-value numeral" id="metricMape">--</div>
-        </div>
-    </div>
+    </section>
 
-    <div class="info-bar">
+    <footer class="info-bar">
         <span class="info-text" id="epochInfo">--</span>
-        <span class="info-text">Window: <strong>60 days</strong> &middot; Method: <strong>Recursive Forecasting</strong></span>
-    </div>
+        <span class="info-text" id="dataInfo">Data: --</span>
+        <span class="info-text">Window: <strong>60 days</strong> &middot; Method: <strong>Recursive forecasting</strong></span>
+    </footer>
+
+    <p class="disclaimer">
+        Hasil prediksi model bersifat eksperimental dan bukan saran investasi.
+        Data historis berasal dari Yahoo Finance.
+    </p>
 </div>
 
-<div class="loading-overlay" id="loadingOverlay">
+<div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
     <div class="loading-spinner">
         <div class="spinner"></div>
-        <div class="loading-text">Processing prediction...</div>
+        <div class="loading-text" id="loadingText">Memuat data...</div>
     </div>
 </div>
 
-<div class="error-toast" id="errorToast"></div>
+<div class="error-toast" id="errorToast" role="alert"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="/static/js/main.js"></script>

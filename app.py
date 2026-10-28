@@ -77,8 +77,9 @@ def get_history(ticker):
     if ticker_df.empty:
         return jsonify({'error': f'Tidak ada data untuk {ticker}'}), 404
 
-    result = ticker_df[['Date', 'Close']].copy()
+    result = ticker_df[['Date', 'Open', 'High', 'Low', 'Close']].copy()
     result['Date'] = result['Date'].dt.strftime('%Y-%m-%d')
+    result[['Open', 'High', 'Low', 'Close']] = result[['Open', 'High', 'Low', 'Close']].round(4)
     return jsonify(result.to_dict(orient='records'))
 
 
